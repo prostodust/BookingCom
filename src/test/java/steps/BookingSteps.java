@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import static com.codeborne.selenide.Selenide.*;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasItem;
+import static org.hamcrest.Matchers.hasToString;
 
 
 public class BookingSteps {
@@ -25,10 +26,21 @@ public class BookingSteps {
         $(".sb-searchbox__button").click();
     }
 
-    @Then("Hotel {string} should be on the Search results page")
-    public void hotelApartmentShouldBeOnTheSearchResultsPage(String hotel) {
-        $(By.xpath("//span[contains(text(),'Show prices')]")).shouldBe(Condition.visible);
-        assertThat($$(".sr-hotel__name").texts(), hasItem(hotel));
+    @Then("Hotel {string} should be on the {string} Search results page")
+    public void hotelApartmentShouldBeOnTheSearchResultsPage(String hotel, String isFirstLine) {
+        if (isFirstLine.equals("")) {
+            $(By.xpath("//span[contains(text(),'Show prices')]")).shouldBe(Condition.visible);
+            assertThat($$(".sr-hotel__name").texts(), hasItem(hotel));
+        } else if (isFirstLine.equals("first line")){
+            $(By.xpath("//span[contains(text(),'Show prices')]")).shouldBe(Condition.visible);
+            assertThat($(".sr-hotel__name").getText(), hasToString("hotel"));
+        } else {
+            try {
+                throw new Exception("");
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     @Given("User is looking for hotels in {string} city")
