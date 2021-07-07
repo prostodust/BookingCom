@@ -14,6 +14,12 @@ import static org.hamcrest.Matchers.hasToString;
 
 
 public class BookingSteps {
+    private static final String BASE_URL = "https://www.booking.com/";
+    private static final String SEARCH_FIELD = "ss";
+    private static final String SEARCH_BUTTON = ".sb-searchbox__button";
+    private static final String SHOW_PRICES_BUTTON = "//span[contains(text(),'Показать цены')]";
+    private static final String HOTEL_NAME = ".sr-hotel__name";
+    private static final String RATING = "//*[contains (text(),'%s')]/ancestor::*[@class='sr_property_block_main_row']//*[@class='bui-review-score__badge']";
     String city;
 
     @Given("User is looking for hotels in {string} city")
@@ -23,19 +29,19 @@ public class BookingSteps {
 
     @When("User does search")
     public void userDoesSearch() {
-        open("https://www.booking.com/");
-        $(By.id("ss")).sendKeys(city);
-        $(".sb-searchbox__button").click();
+        open(BASE_URL);
+        $(By.id(SEARCH_FIELD)).sendKeys(city);
+        $(SEARCH_BUTTON).click();
     }
 
     @Then("Hotel {string} should be on the {string} Search results page")
     public void hotelApartmentShouldBeOnTheSearchResultsPage(String hotel, String isFirstLine) {
         if (isFirstLine.equals("")) {
-            $(By.xpath("//span[contains(text(),'Показать цены')]")).shouldBe(Condition.visible);
-            assertThat($$(".sr-hotel__name").texts(), hasItem(hotel));
+            $(By.xpath(SHOW_PRICES_BUTTON)).shouldBe(Condition.visible);
+            assertThat($$(HOTEL_NAME).texts(), hasItem(hotel));
         } else if (isFirstLine.equals("first line")) {
-            $(By.xpath("//span[contains(text(),'Показать цены')]")).shouldBe(Condition.visible);
-            assertThat($(".sr-hotel__name").getText(), hasToString(hotel));
+            $(By.xpath(SHOW_PRICES_BUTTON)).shouldBe(Condition.visible);
+            assertThat($(HOTEL_NAME).getText(), hasToString(hotel));
         } else {
             try {
                 throw new Exception("");
@@ -45,8 +51,9 @@ public class BookingSteps {
         }
     }
 
-    @And("Hotel {string} rating is {double}")
-    public void hotelHostelUrbanRatingIs(String hotel, double rating) {
+    @And("Hotel {string} rating is {string}")
+    public void hotelHostelUrbanRatingIs(String hotel, String rating) {
+        $(By.xpath(SHOW_PRICES_BUTTON)).shouldBe(Condition.visible);
+        assertThat($$(By.xpath(String.format(RATING, hotel))).texts(), hasItem(rating));
     }
-
 }
